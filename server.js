@@ -68,6 +68,9 @@ const connect = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    app.listen(port, () => {
+      console.log("Backend server is running");
+    });
   } catch (error) {
     console.log(error);
     process.exit(1);
@@ -76,9 +79,11 @@ const connect = async () => {
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
-  connect();
-  console.log("Backend server is running");
-});
+connect();
+
+// app.listen(port, () => {
+//   connect();
+//   console.log("Backend server is running");
+// });
 
 module.exports = app;
