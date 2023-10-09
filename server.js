@@ -2,10 +2,10 @@ const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 const cors = require("cors");
-const socketIO = require("socket.io");
+// const socketIO = require("socket.io");
 const http = require("http");
 const server = http.createServer(app);
-const io = socketIO(server);
+// const io = socketIO(server);
 const mongoose = require("mongoose");
 dotenv.config();
 
@@ -34,30 +34,30 @@ app.use("/api/userapp/users", userusersroute);
 app.use("/api/vendorapp/auth", vendorauthroute);
 
 // Handle incoming socket connections
-io.on("connection", (socket) => {
-  console.log("A user connected");
+// io.on("connection", (socket) => {
+//   console.log("A user connected");
 
-  // Handle chat messages
-  socket.on("chat message", (msg) => {
-    // Broadcast the message to all connected clients
-    io.emit("chat message", msg);
-  });
+//   // Handle chat messages
+//   socket.on("chat message", (msg) => {
+//     // Broadcast the message to all connected clients
+//     io.emit("chat message", msg);
+//   });
 
-  // Handle user disconnection
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
+//   // Handle user disconnection
+//   socket.on("disconnect", () => {
+//     console.log("A user disconnected");
+//   });
+// });
 
 // API endpoint to send a chat message
-app.post("/api/sendMessage", (req, res) => {
-  const { message } = req.body;
+// app.post("/api/sendMessage", (req, res) => {
+//   const { message } = req.body;
 
-  // Emit the message to all connected clients
-  io.emit("chat message", message);
+//   // Emit the message to all connected clients
+//   io.emit("chat message", message);
 
-  res.status(200).json({ success: true, message: "Message sent successfully" });
-});
+//   res.status(200).json({ success: true, message: "Message sent successfully" });
+// });
 
 app.get("/", (req, res) => {
   res.json("The backend server is up and running");
