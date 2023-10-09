@@ -15,7 +15,11 @@ const userusersroute = require("./src/routes/user/user");
 const vendorauthroute = require("./src/routes/vendor/auth");
 
 app.use(express.json());
-
+// app.use(
+//   cors({
+//     origin: "http://192.168.0.4:19000",
+//   })
+// );
 // app.use((err, req, res, next) => {
 //   const status = err.status || 500;
 //   const message = err.message || "Server error";
@@ -72,7 +76,7 @@ const connect = async () => {
 
 const port = process.env.PORT || 5000;
 
-server.listen(port, () => {
+app.listen(port, () => {
   connect();
   console.log("Backend server is running");
 });
