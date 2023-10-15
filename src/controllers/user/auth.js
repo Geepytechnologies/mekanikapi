@@ -83,6 +83,23 @@ const signinwithgoogle = async (req, res, next) => {
   }
 };
 
+const validateaccesstoken = (req, res) => {
+  const accesstoken = req.headers.Authorization || req.headers.authorization;
+  try {
+    if (accesstoken) {
+      const token = accesstoken.split(" ")[1];
+      jwt.verify(token, process.env.REFRESH_SECRET, (err, user) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        res.status(200).json("Authenticated");
+      });
+    } else {
+      return res.status(401).json("You are not authenticated");
+    }
+  } catch (error) {
+    res.status(500).json("Something went wrong");
+  }
+};
+
 // const forgotpassword = (req,res)=>{
 //   const {data} = req.body
 //   try {
@@ -97,4 +114,5 @@ module.exports = {
   signup,
   signin,
   signinwithgoogle,
+  validateaccesstoken,
 };
