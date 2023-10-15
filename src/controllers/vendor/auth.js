@@ -72,7 +72,7 @@ const validateaccesstoken = (req, res) => {
   try {
     if (accesstoken) {
       const token = accesstoken.split(" ")[1];
-      jwt.verify(token, process.env.REFRESH_SECRET, (err, user) => {
+      jwt.verify(token, process.env.ACCESS_SECRET, (err, user) => {
         if (err) return res.status(403).json("Token is not valid!");
         res.status(200).json("Authenticated");
       });
