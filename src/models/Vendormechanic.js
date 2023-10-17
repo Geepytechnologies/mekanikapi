@@ -36,6 +36,9 @@ const VendorSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    passwordresetotp: {
+      type: String,
+    },
     vendortype: {
       type: String,
       enum: ["dealer", "mechanic"],

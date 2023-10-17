@@ -99,12 +99,22 @@ const validateaccesstoken = (req, res) => {
   try {
     if (accesstoken) {
       const token = accesstoken.split(" ")[1];
-      jwt.verify(token, process.env.ACCESS_SECRET, (err, user) => {
-        if (err) return res.status(403).json("Token is not valid!");
-        res.status(200).json("Authenticated");
+      jwt.verify(token, process.env.ACCESS_SECRET, async (err, user) => {
+        if (err)
+          return res
+            .status(403)
+            .json({ status: false, message: "Token is not valid!" });
+        const myuser = await User.findById(user.id);
+        const { password, ...others } = myuser._doc;
+
+        res
+          .status(200)
+          .json({ status: true, others, message: "Authenticated" });
       });
     } else {
-      return res.status(401).json("You are not authenticated");
+      return res
+        .status(401)
+        .json({ status: false, message: "You are not authenticated" });
     }
   } catch (error) {
     res.status(500).json("Something went wrong");
@@ -133,8 +143,31 @@ const forgotpassword = async (req, res) => {
 };
 
 const resetpassword = async (req, res) => {
+  const { otp, userid } = req.body;
   try {
-  } catch (error) {}
+    const user = await User.findById(userid);
+    if (otp !== user.passwordresetotp)
+      return res.status(409).json("OTP does not match");
+    res.status(200).json("verified");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+const newpassword = async (req, res) => {
+  const { password, userid } = req.body;
+  try {
+    const salt = bcrypt.genSaltSync(10);
+    const hashedpassword = bcrypt.hashSync(password, salt);
+    await User.updateOne(
+      { _id: userid },
+      { $set: { password: hashedpassword } },
+      { new: true }
+    );
+    res.status(200).json("password updated");
+  } catch (error) {
+    res.status(500).json("Error changing password");
+  }
 };
 
 module.exports = {
@@ -143,4 +176,6 @@ module.exports = {
   signinwithgoogle,
   validateaccesstoken,
   forgotpassword,
+  resetpassword,
+  newpassword,
 };
