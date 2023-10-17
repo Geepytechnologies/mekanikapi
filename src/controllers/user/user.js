@@ -19,4 +19,19 @@ const getUserById = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, getUserById };
+const updateUser = async (req, res) => {
+  const userID = req.params.id;
+  try {
+    const user = await User.findByIdAndUpdate(
+      userID,
+      { $set: req.body },
+      { new: true }
+    );
+    if (!user) return res.status(404).json("User not found");
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { getAllUsers, getUserById, updateUser };

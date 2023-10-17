@@ -2,6 +2,13 @@ const { createError } = require("../../utils/error");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { User } = require("../../models/User");
+const { sendVerificationSMS } = require("../../utils/sendverification");
+
+function generateOTP() {
+  const min = 100000;
+  const max = 999999;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 const signup = async (req, res, next) => {
   const { email, password } = req.body;
@@ -28,7 +35,7 @@ const signin = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json("User not found");
-    const isMatched = bcrypt.compareSync(req.body.password, user.password);
+    const isMatched = bcrypt.compareSync(password, user.password);
     if (!isMatched) return res.status(400).json("wrong credentials");
 
     //access Token
@@ -62,7 +69,11 @@ const signinwithgoogle = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_SECRET);
+      const accessToken = jwt.sign(
+        { id: user._id },
+        process.env.ACCESS_SECRET,
+        { expiresIn: "1d" }
+      );
       const { password, ...others } = user._doc;
 
       res.status(200).json({ others, accessToken });
@@ -100,19 +111,36 @@ const validateaccesstoken = (req, res) => {
   }
 };
 
-// const forgotpassword = (req,res)=>{
-//   const {data} = req.body
-//   try {
-//     const
+const forgotpassword = async (req, res) => {
+  const { phone } = req.body;
+  try {
+    const user = await User.findOne({ phone: phone });
+    if (!user) return res.status(404).json("User not found");
+    const otp = generateOTP();
+    const sendsms = sendVerificationSMS(phone, otp);
+    if (!sendsms) return res.status(400).json("Error sending OTP message");
 
-//   } catch (error) {
+    await User.updateOne(
+      { _id: user._id },
+      { $set: { passwordresetotp: otp } },
+      { new: true }
+    );
+    res.status(200).json("OTP sent successfully");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
 
-//   }
-// }
+const resetpassword = async (req, res) => {
+  try {
+  } catch (error) {}
+};
 
 module.exports = {
   signup,
   signin,
   signinwithgoogle,
   validateaccesstoken,
+  forgotpassword,
 };

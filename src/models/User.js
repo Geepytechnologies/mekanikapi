@@ -44,6 +44,9 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    passwordresetotp: {
+      type: String,
+    },
     rating: {
       type: Number,
     },
